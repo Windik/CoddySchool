@@ -1,0 +1,4 @@
+hello=Instance.new("Message", workspace)
+hello.Text="Добро пожаловать в мой мир"
+wait(15)
+hello:Remove(1)
