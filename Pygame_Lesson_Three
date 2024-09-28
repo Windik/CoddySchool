@@ -1,0 +1,99 @@
+import pygame # Подключаем модуль Pygame
+import os # Подклчаем модуль работы с операционной системой
+
+# Автоматически определяем путь к файлу нашей игры
+# и сохраняем его в переменную
+current_path = os.path.dirname(os.path.abspath(__file__))
+
+pygame.init() # Проверяем все ли подключилось
+
+FPS = 60 # Создаем переменную и сохраняем количество кадров
+# Переменная ограничивающая количество кадров
+clock = pygame.time.Clock()
+
+# Переменные размеров экрана
+screen_width = 800
+screen_height = 600
+
+# Создаем переменную и сохраняем игровое окно в нее
+screen = pygame.display.set_mode([screen_width, screen_height])
+
+# Цвета
+BLACK = (0,0,0)
+WHITE = (255,255,255)
+RED = (255,0,0)
+GREEN = (0,255,0)
+BLUE = (0,0,255)
+VIOLET = (100, 0, 100)
+
+# Скорость перемещения игрока и врага
+player_speed = 4
+enemy_speed = 3
+
+# Сохраняем картинку персонажа в переменную
+hero = pygame.image.load(f"{current_path}/hero.png")
+hero = pygame.transform.scale(hero, [80, 80])
+hero_rect = hero.get_rect()
+
+# Запускаем основной цикл игры
+while True:
+
+    # Цикл перебора событий
+    for event in pygame.event.get():
+        # Если нажата кнопка крестик у окна
+        if event.type == pygame.QUIT:
+            # Завершаем игру и выходим из приложения
+            pygame.quit()
+            exit()
+    
+    # Создаем переменную и сохраняем туда нажатые клавиши
+    user_input = pygame.key.get_pressed()
+
+    # Движение игрока
+    # Если нажата клавиша влево
+    if user_input[pygame.K_a]:
+        # Перемещаем игрока влево на значение player_speed
+        hero_rect.left -= player_speed
+    if user_input[pygame.K_d]:
+        # Перемещаем игрока вправо на значение player_speed
+        hero_rect.left += player_speed
+    if user_input[pygame.K_w]:
+        # Перемещаем игрока вверх на значение player_speed
+        hero_rect.top -= player_speed
+    if user_input[pygame.K_s]:
+        # Перемещаем игрока вниз на значение player_speed
+        hero_rect.top += player_speed
+
+
+    # Ограничение движения кружочка за экраном
+    # Если координата х игрока меньше левой части экрана
+    if hero_rect.left < 0:
+        # Не даем координате x уменьшаться
+        hero_rect.left = 0
+    if hero_rect.left > screen_width - hero_rect.width:
+        # Не даем координате x увеличиваться
+        hero_rect.left = screen_width - 50
+    if hero_rect.top < 0:
+        # Не даем координате y уменьшаться
+        hero_rect.top = 0
+    if hero_rect.top > screen_height - hero_rect.height:
+        # Не даем координате y увеличиваться
+        hero_rect.top = screen_height - hero_rect.height
+
+    # Изменение цвета фона окна
+    screen.fill(VIOLET)
+
+    # Рисуем кружочки на экране
+    # screen - где нарисовать кружочек
+    # (0, 0, 255) - цвет
+    # (x, y) - координаты
+    # 50 - размер кружочка
+    
+
+    # Рисуем картинку персонажа
+    screen.blit(hero, hero_rect)
+
+    # Ограничиваем количество кадров в секунду
+    clock.tick(FPS)
+    # Обновляем экран и отображаем изменения
+    pygame.display.update()
