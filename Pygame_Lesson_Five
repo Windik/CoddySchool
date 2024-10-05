@@ -1,0 +1,70 @@
+import telebot
+from telebot import types #
+import datetime
+import os
+
+current_path = os.path.dirname(os.path.abspath(__file__))
+bot = telebot.TeleBot("")
+
+dela = ""
+name = ""
+messages = [""]
+
+@bot.message_handler(commands=['start'])
+def start_message(message):
+    markup = types.InlineKeyboardMarkup()
+    button1 = types.InlineKeyboardButton("Сайт Султана", "https://login.school.mosreg.ru/")
+    markup.add(button1)
+    bot.send_message(message.chat.id, "Привет, я Султан НеРавиль! Ты попал в мой клуб! Что будем делать?", reply_markup=markup)
+
+@bot.message_handler(commands=['time'])
+def time_message(message):
+    current_time = datetime.datetime.now()
+    bot.send_message(message.chat.id, 
+                     f"Текущее время: {current_time}")
+
+@bot.message_handler(content_types=['text'])
+def echo_message(message):
+
+    if message.from_user.first_name == "Ваня":
+        bot.send_message(message.chat.id, "Ты НЕлузер, а двоишник!")
+
+    global messages
+    messages.append(message.text)
+    print(f"USERNAME: {message.from_user.username}\nFIRST_NAME: {message.from_user.first_name}\nLAST_NAME: {message.from_user.last_name}\nMESSAGE:", messages[-1])
+    with open(f"{current_path}\\messages.doc", "a") as file:
+        file.write(f"Time: {datetime.datetime.now()}\n")
+        file.write(f"USERNAME: {message.from_user.username}\n")
+        file.write(f"FIRST_NAME: {message.from_user.first_name}\n")
+        file.write(f"LAST_NAME: {message.from_user.last_name}\n")
+        file.write(f"MESSAGE: {messages[-1]}\n\n")
+          
+    if message.text.lower() in ["привет", "здарова", "йо"]:
+        bot.send_message(message.chat.id, "Ваня, лол, дай телефон!")
+    
+    if message.text.lower() == "помочь ване?":
+        markup_buttons = types.ReplyKeyboardMarkup(resize_keyboard=True)
+        button1 = types.KeyboardButton("Да, так и быть...")
+        button2 = types.KeyboardButton("Ни в коем случае!")
+        markup_buttons.add(button1, button2)
+        bot.send_message(message.chat.id, "Сам решай...", reply_markup=markup_buttons)
+
+    if message.text.lower() == "как дела?":
+        bot.send_message(message.chat.id, "Все хорошо, спасибо. А как у тебя?")
+        bot.register_next_step_handler(message, how_are_you)
+
+    if message.text.lower() == "как тебя зовут?":
+        bot.send_message(message.chat.id, "Меня зовут Неравиль. А как тебя?")
+        bot.register_next_step_handler(message, get_name)
+
+def get_name(message):
+    global name
+    name = message.text
+    bot.send_message(message.chat.id, f"Рад познакомиться, {name}")
+
+def how_are_you(message):
+    global dela
+    if message.text.lower() == "все хорошо":
+        bot.send_message(message.chat.id, "Отлично!")
+
+bot.polling(none_stop=True, timeout=0)
