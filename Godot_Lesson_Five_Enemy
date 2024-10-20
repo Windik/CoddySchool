@@ -1,0 +1,42 @@
+extends CharacterBody2D
+
+var direction = -1
+@onready var parent_node = get_node(".")
+@onready var platform_trigger = get_node("PlatformTrigger")
+@onready var _sprite2D = $AnimatedSprite2D
+
+var ENEMY_SPEED = 100
+var is_attack = false # 
+var player = get_tree().get_root().get_node(".").get_node("Player")
+
+func _ready():
+	var mob_types = $AnimatedSprite2D.sprite_frames.get_animation_names()
+	$AnimatedSprite2D.play("Walk") #
+
+func _process(delta: float) -> void:
+	if direction == -1:
+		velocity.x = direction * ENEMY_SPEED
+	
+	if direction == 1:
+		velocity.x = direction * ENEMY_SPEED
+	
+	if is_attack == false: #
+		move_and_slide()
+
+func _on_area_2d_body_exited(body: Node2D) -> void:
+	if "Platform" in body.name:
+		direction = -1 * direction
+		_sprite2D.flip_h = !_sprite2D.flip_h
+
+# Реагируем на появление игрока, останавливаем движение и включаем анимацию атаки
+func _on_attack_area_body_entered(body: Node2D) -> void:
+	if "Player" in body.name:
+		is_attack = true
+		body.HP -= 1
+		$AnimatedSprite2D.play("Attack")
+
+# Реагируем на исчезновение игрока из области взаимодействия, включаем движение и выключаем анимацию атаки
+func _on_attack_area_body_exited(body: Node2D) -> void:
+	if "Player" in body.name:
+		is_attack = false
+		$AnimatedSprite2D.play("Walk")
