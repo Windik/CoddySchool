@@ -1,0 +1,123 @@
+import telebot
+from telebot import types #
+import datetime
+import os
+# Для парсинга сайтов
+import requests
+from bs4 import BeautifulSoup
+import random
+
+
+current_path = os.path.dirname(os.path.abspath(__file__))
+bot = telebot.TeleBot("Token")
+
+dela = ""
+name = ""
+messages = [""]
+meme = ["https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQI2Ezlr8pw8qhuzdlbiHFZNohvT6eSB0hgqA&s",
+        "https://habrastorage.org/r/w1560/webt/m9/z5/vw/m9z5vwnbzblbe0xgppboty60nbo.png",
+        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ4FUsYSFen8jfPJ2s1u1iaK1t2RZ-nqmpwpg&s",
+        "https://www.m24.ru/b/d/nBkSUhL2hFAmmMu_Jr6BvMKnxdDs9pC9yyqYy7jLs2KQeXqLBmmcmzZh59JUtRPBsdaJqSfJd54qEr7t1mNwKSGK7WY=stGJBvveSz5mlUrbWZs0eA.jpg",
+        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT3Qf3CkTvnfHdY4NGKg1HeYqK7xhkdtX9ZYg&s",
+        "https://cdn.trinixy.ru/pics6/20240611/250025_1_trinixy_ru.jpg"]
+
+
+@bot.message_handler(commands=['start'])
+def start_message(message):
+    markup = types.InlineKeyboardMarkup()
+    button1 = types.InlineKeyboardButton("Сайт Султана", "https://login.school.mosreg.ru/")
+    markup.add(button1)
+    bot.send_message(message.chat.id, "Привет, я Султан НеРавиль! Ты попал в мой клуб! Что будем делать?", reply_markup=markup)
+
+@bot.message_handler(commands=['time'])
+def time_message(message):
+    current_time = datetime.datetime.now()
+    bot.send_message(message.chat.id, 
+                     f"Текущее время: {current_time}")
+
+@bot.message_handler(content_types=['text'])
+def echo_message(message):
+
+    if message.from_user.first_name == "Ваня":
+        bot.send_message(message.chat.id, "Ты НЕлузер, а двоишник!")
+
+    global messages, meme
+    messages.append(message.text)
+    print(f"USERNAME: {message.from_user.username}\nFIRST_NAME: {message.from_user.first_name}\nLAST_NAME: {message.from_user.last_name}\nMESSAGE:", messages[-1])
+    with open(f"{current_path}\\messages.doc", "a") as file:
+        file.write(f"Time: {datetime.datetime.now()}\n")
+        file.write(f"USERNAME: {message.from_user.username}\n")
+        file.write(f"FIRST_NAME: {message.from_user.first_name}\n")
+        file.write(f"LAST_NAME: {message.from_user.last_name}\n")
+        file.write(f"MESSAGE: {messages[-1]}\n\n")
+          
+    if message.text.lower() in ["привет", "здарова", "йо"]:
+        bot.send_message(message.chat.id, "Ваня, лол, дай телефон!")
+    
+    if message.text.lower() == "помочь ване?":
+        markup_buttons = types.ReplyKeyboardMarkup(resize_keyboard=True)
+        button1 = types.KeyboardButton("Да, так и быть...")
+        button2 = types.KeyboardButton("Ни в коем случае!")
+        markup_buttons.add(button1, button2)
+        bot.send_message(message.chat.id, "Сам решай...", reply_markup=markup_buttons)
+
+    # Разработка Ивана Георгиевича (Фамилия слишком известная, чтобы ее называть)
+    if message.text.lower() == "курс валют":
+        data = requests.get('https://www.cbr-xml-daily.ru/daily_json.js').json()
+        USD = data["Valute"]["USD"]["Value"]
+        bot.send_message(message.chat.id, f"Текущий курс Доллара к Рублю: {USD}")
+        
+    # Присылаем картинку по описанию
+    if "пришли картинку" in message.text.lower():
+        parts = message.text.split(" ")
+        found = parts[-1]
+        print(found)
+        data = requests.get(f'https://www.google.com/search?q={found}')
+
+        soup = BeautifulSoup(data.text, "html.parser")
+        img_url = soup.find_all('img')
+        print(img_url)
+        result = "Картинка не найдена"
+        if len(img_url) > 0:
+            result = img_url[0].get('src')
+            print(result)
+        bot.send_message(message.chat.id, result)
+
+
+    # Присылаем мемы
+    if "пришли мем" in message.text.lower():
+        bot.send_photo(message.chat.id, random.choice(meme))
+
+    # Присылаем смайлики по запросу
+    if "пришли смайл" in message.text.lower():
+        parts = message.text.split(" ")
+        found = parts[-1]
+        if found == "тигра":
+            bot.send_message(message.chat.id, "🐯")
+        elif found == "кот":
+            bot.send_message(message.chat.id, "😺")
+        else:
+            bot.send_message(message.chat.id, f"Смайлка '{found}' не найдено 😢")
+
+    if message.text.lower() == "как дела?":
+        bot.send_message(message.chat.id, "Все хорошо, спасибо. А как у тебя?")
+        bot.register_next_step_handler(message, how_are_you)
+
+    if message.text.lower() == "как тебя зовут?":
+        bot.send_message(message.chat.id, "Меня зовут Неравиль. А как тебя?")
+        bot.register_next_step_handler(message, get_name)
+
+def wallet(message):
+    bot.send_message(message.chat.id, f"")
+
+def get_name(message):
+    global name
+    name = message.text
+    bot.send_message(message.chat.id, f"Рад познакомиться, {name}")
+
+def how_are_you(message):
+    global dela
+    if message.text.lower() == "все хорошо":
+        bot.send_message(message.chat.id, "Отлично!")
+
+bot.polling(none_stop=True, timeout=0)
