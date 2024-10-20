@@ -1,0 +1,8 @@
+script.Parent.Touched:connect(function(hit)
+  if hit and hit.Parent and hit.Parent:FindFirstChild("Humanoid") then
+    hit.Parent.Humanoid.Health = 1 -- эта строка убирает здоровье до 1
+    hit.Parent.Humanoid.Health = 100 -- эта строка восстанавливает здоровье до 100
+    hit.Parent.Humanoid.WalkSpeed = 32 -- эта строка увеличивает скорость игрока
+    hit.Parent.Humanoid.JumpPower = 100 -- эта строка увеличивает прыжок игрока
+  end
+end)
