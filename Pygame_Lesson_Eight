@@ -1,0 +1,257 @@
+import pygame # Подключаем модуль Pygame
+import os # Подклчаем модуль работы с операционной системой
+import random
+
+# Автоматически определяем путь к файлу нашей игры
+# и сохраняем его в переменную
+current_path = os.path.dirname(os.path.abspath(__file__))
+
+pygame.init() # Проверяем все ли подключилось
+
+FPS = 60 # Создаем переменную и сохраняем количество кадров
+# Переменная ограничивающая количество кадров
+clock = pygame.time.Clock()
+
+# Переменные размеров экрана
+screen_width = 800
+screen_height = 600
+
+# Создаем переменную и сохраняем игровое окно в нее
+screen = pygame.display.set_mode([screen_width, screen_height])
+
+# Цвета (сохраняем в Константы)
+BLACK = (0,0,0)
+WHITE = (255,255,255)
+RED = (255,0,0)
+GREEN = (0,255,0)
+BLUE = (0,0,255)
+VIOLET = (100, 0, 100)
+
+# Скорость перемещения игрока и врага
+player_speed = 4
+enemy_speed = 3
+
+# Сохраняем картинку персонажа в переменную
+hero = pygame.image.load(f"{current_path}/hero.png")
+# Меняем размер картинки
+hero = pygame.transform.scale(hero, [80, 80])
+# Создаем область взаимодействия
+hero_rect = hero.get_rect()
+
+# Сохраняем картинку собираемого предмета
+coin = pygame.image.load(f"{current_path}/coin.png")
+coin = pygame.transform.scale(coin, [40, 40])
+coin_rect = coin.get_rect()
+# Меняем стартовое положение собираемого предмета
+coin_rect.left = screen_width / 2
+coin_rect.top = screen_height / 2
+
+# Фоновая картинка
+bg_img = pygame.image.load(f"{current_path}/bgimg.png")
+bg_img = pygame.transform.scale(bg_img, [screen_width, screen_height])
+
+# Баффы
+speed_boost = pygame.image.load(f"{current_path}/speed_boost.png")
+speed_boost = pygame.transform.scale(speed_boost, [60, 60])
+speed_boost_rect = speed_boost.get_rect()
+
+speed_boost_timer = random.randint(5, 8)
+speed_boost_lifetime = 3
+speed_boost_is_collected = False
+speed_boost_value = 2
+
+# Количество очков
+score = 0
+# Создаем переменную для хранени шрифта текста на экране
+font_score = pygame.font.Font(None, 32)
+# Создаем переменную с количеством очков для вывода на экран
+score_text = font_score.render(f"Score: {score}", 1, WHITE)
+
+# Время игры
+time_left = 20
+# Счетчик кадров для подсчета времени
+time_frames = 0
+# Создаем переменную с оставшимся временем для вывода на экран
+time_text = font_score.render(f"Time: {time_left}", 1, WHITE)
+
+state_of_the_game = "Run"
+
+exit_text = font_score.render(f"Q - Exit", 1, WHITE)
+continue_text = font_score.render(f"C - Continue", 1, WHITE)
+is_score_write = False
+
+def set_start_parameters():
+    global score, time_left, state_of_the_game, score_text, time_frames, is_score_write
+    is_score_write = False
+    state_of_the_game = "Run"
+    score = 0
+    score_text = font_score.render(f"Score: {score}",1, WHITE)
+    time_left = 20
+    time_frames = 0
+
+coin_collected = pygame.mixer.Sound(f"{current_path}/coin_collect.wav")
+
+pygame.mixer.music.load(f"{current_path}/bg.mp3")
+pygame.mixer.music.play(-1)
+
+menu_run = True
+
+game_title_font = pygame.font.Font(None, 70)
+game_title = game_title_font.render("Gold seeker", 1, RED)
+game_title_rect = game_title.get_rect()
+game_title_rect.left = screen_width / 2 - game_title_rect.width / 2
+game_title_rect.top = screen_height / 6 - game_title_rect.height / 2
+
+buttons_font = pygame.font.Font(None, 40)
+
+play_button = buttons_font.render("PLAY", 1, WHITE)
+play_button_rect = play_button.get_rect()
+play_button_rect.left = screen_width / 2 - play_button_rect.width / 2
+play_button_rect.top = screen_height / 2 - play_button_rect.height / 2
+
+quit_button = buttons_font.render("QUIT", 1, WHITE)
+quit_button_rect = quit_button.get_rect()
+quit_button_rect.left = screen_width / 2 - quit_button_rect.width / 2
+quit_button_rect.top = screen_height / 2 + quit_button_rect.height / 2
+
+while menu_run:
+
+    screen.fill(BLACK)
+
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            exit()
+
+    screen.blit(game_title, game_title_rect)
+    pygame.display.update()
+
+# Запускаем основной цикл игры
+while True:
+
+    # Изменение цвета фона окна
+    screen.fill(VIOLET)
+    screen.blit(bg_img, (0, 0))
+
+    #  Увеличиваем количество кадров
+    time_frames += 1
+
+    # Подсчитываем количество кадров для подсчета одной секунды игры
+    if time_frames >= FPS:
+        # Уменьшаем оставшееся время
+        time_left -= 1
+        # Выводим новое время на экран
+        time_text = font_score.render(f"Time: {time_left}", 1, WHITE)
+        # Обнуляем счетчик кадров
+        time_frames = 0
+        # Считаем время до появления буста скорости
+        speed_boost_timer -= 1
+
+        if speed_boost_timer <= 0 and speed_boost_lifetime > 0:
+            speed_boost_lifetime -= 1
+
+    if speed_boost_timer <= 0:
+
+        if speed_boost_is_collected == True:
+            speed_boost_rect.left = random.randint(0, screen_width - speed_boost.get_width())
+            speed_boost_rect.top = random.randint(0, screen_height - speed_boost.get_height())
+            speed_boost_is_collected = False
+
+        if speed_boost_lifetime > 0:
+            screen.blit(speed_boost, speed_boost_rect)
+        else:
+            speed_boost_rect.left = -1000
+            speed_boost_rect.top = -1000
+
+    if time_left <= 0:
+        state_of_the_game = "Paused"
+        time_left = 0
+        time_text = font_score.render(f"Time: {time_left}", 1, WHITE)
+        screen.blit(exit_text, (200, 250))
+        screen.blit(continue_text, (600, 250))
+
+        if is_score_write == False:
+            with open(f"{current_path}/score.txt", "a") as file:
+                file.write(f"{score}\n")
+            is_score_write = True
+        
+        if user_input[pygame.K_c]:
+            set_start_parameters()
+        if user_input[pygame.K_q]:
+            pygame.exit()
+
+    # Цикл перебора событий
+    for event in pygame.event.get():
+        # Если нажата кнопка крестик у окна
+        if event.type == pygame.QUIT:
+            # Завершаем игру и выходим из приложения
+            pygame.quit()
+            exit()
+    
+    # Создаем переменную и сохраняем туда нажатые клавиши
+    user_input = pygame.key.get_pressed()
+
+    if state_of_the_game == "Run":
+        # Движение игрока
+        # Если нажата клавиша влево
+        if user_input[pygame.K_a]:
+            # Перемещаем игрока влево на значение player_speed
+            hero_rect.left -= player_speed
+        if user_input[pygame.K_d]:
+            # Перемещаем игрока вправо на значение player_speed
+            hero_rect.left += player_speed
+        if user_input[pygame.K_w]:
+            # Перемещаем игрока вверх на значение player_speed
+            hero_rect.top -= player_speed
+        if user_input[pygame.K_s]:
+            # Перемещаем игрока вниз на значение player_speed
+            hero_rect.top += player_speed
+
+    # Ограничение движения кружочка за экраном
+    # Если координата х игрока меньше левой части экрана
+    if hero_rect.left < 0:
+        # Не даем координате x уменьшаться
+        hero_rect.left = 0
+    if hero_rect.left > screen_width - hero_rect.width:
+        # Не даем координате x увеличиваться
+        hero_rect.left = screen_width - hero_rect.width
+    if hero_rect.top < 0:
+        # Не даем координате y уменьшаться
+        hero_rect.top = 0
+    if hero_rect.top > screen_height - hero_rect.height:
+        # Не даем координате y увеличиваться
+        hero_rect.top = screen_height - hero_rect.height
+
+    if hero_rect.colliderect(coin_rect):
+        coin_collected.play()
+        score += 1
+        score_text = font_score.render(f"Score: {score}", 1, WHITE)
+        coin_rect.left = random.randint(0, screen_width - coin_rect.width)
+        coin_rect.top = random.randint(0, screen_height - coin_rect.height)
+
+    if hero_rect.colliderect(speed_boost_rect):
+        speed_boost_timer = random.randint(5,8)
+        speed_boost_lifetime = 3
+        speed_boost_rect.left = -1000
+        speed_boost_rect.top = -1000
+        player_speed += speed_boost_value
+        speed_boost_is_collected = True
+
+    # Рисуем кружочки на экране
+    # screen - где нарисовать кружочек
+    # (0, 0, 255) - цвет
+    # (x, y) - координаты
+    # 50 - размер кружочка
+    
+    # Выводим на экран очки и оставшееся время
+    screen.blit(score_text, (0,0))
+    screen.blit(time_text, (350,0))
+    # Рисуем картинку персонажа
+    screen.blit(hero, hero_rect)
+    #
+    screen.blit(coin, coin_rect)
+
+    # Ограничиваем количество кадров в секунду
+    clock.tick(FPS)
+    # Обновляем экран и отображаем изменения
+    pygame.display.update()
