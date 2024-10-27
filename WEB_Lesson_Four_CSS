@@ -1,0 +1,61 @@
+body {
+    margin: 0px;
+    padding: 0px;
+    background-image: url("https://img.freepik.com/premium-vector/abstract-seamless-pattern-with-colorful-wavy-lines-geometric-shapes-doodles-purple-background_123891-71098.jpg?semt=ais_hybrid");
+}
+
+#container {
+    border: 6px solid purple;
+    width: 800px;
+    height: 500px;
+    display: flex;
+    margin: 100px auto;
+}
+
+#menu {
+    flex: 1;
+    background-color: lightgray;
+    padding: 20px;
+    border-right: 6px solid purple;
+}
+
+#info {
+    flex: 3;
+    background-color: lightblue;
+    padding: 20px;
+}
+
+p {
+    font-size: 18px;
+    text-align: justify;
+}
+
+ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+li {
+    margin-bottom: 10px;
+    text-align: center;
+    padding: 5px;
+    border: 1px solid darkorchid;
+    background-color: violet;
+}
+
+a li {
+    color: black;
+}
+
+ul a {
+    text-decoration: none;
+}
+
+a li:hover {
+    background-color: fuchsia;
+}
+
+ul li:hover {
+    background-color: fuchsia;
+    cursor: pointer;
+}
