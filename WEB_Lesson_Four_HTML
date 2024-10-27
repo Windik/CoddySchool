@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Сайт-Визитка Герогия Юрьевича</title>
+        <link rel="stylesheet" href="gosha.css">
+        
+    </head>
+    <body>
+        <div id="container">
+            <div id="menu">
+                <h2>Меню</h2>
+                <ul>
+                    <li id="main">Главная</li>
+                    <li id="about">Обо мне</li>
+                    <li id="bigmac">О Бигмаке (Олеге)</li>
+                    <li id="powers">Физические способности</li>
+                </ul>
+            </div>
+            <div id="info">
+                <h1>Добро пожаловать!</h1>
+                <p>Это сайт Георгия Юрьевича, т.е. мой. Я занимаюсь поеданием вселенных (да-да, я Галактус).</p>
+                <p>В свободное время я угораю с фоток мелкого Олега.</p>
+            </div>
+        </div>
+        <script type="text/javascript" src="gosha.js"></script>
+    </body>
+</html>
