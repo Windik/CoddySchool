@@ -1,0 +1,16 @@
+button = script.Parent
+door = workspace.Door
+
+button.ClickDetector.MouseClick:Connect(function()
+	while door.Transparency < 1 do
+		door.Transparency += 0.01
+		wait(0.01)
+	end
+	door.CanCollide = false
+	wait(5)
+	while door.Transparency > 0 do
+		door.Transparency -= 0.01
+		wait(0.01)
+	end
+	door.CanCollide = true
+end)
