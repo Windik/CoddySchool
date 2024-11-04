@@ -1,0 +1,8 @@
+extends Area2D
+
+func _on_body_entered(body: Node2D) -> void:
+	if "Enemy" in body.name:
+		body.queue_free()
+		get_parent().queue_free()
+	elif "RigidBody2D" not in body.name:
+		get_parent().queue_free()
