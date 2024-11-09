@@ -1,0 +1,60 @@
+import pygame
+import colors
+
+menu_run = True
+
+def open_menu(screen, screen_width, screen_height):
+    
+    game_title_font = pygame.font.Font(None, 70)
+    game_title = game_title_font.render("Gold seeker", 1, colors.RED)
+    game_title_rect = game_title.get_rect()
+    game_title_rect.left = screen_width / 2 - game_title_rect.width / 2
+    game_title_rect.top = screen_height / 6 - game_title_rect.height / 2
+
+    buttons_font = pygame.font.Font(None, 40)
+
+    play_button = buttons_font.render("PLAY", 1, colors.RED)
+    play_button_rect = play_button.get_rect()
+    play_button_rect.left = screen_width / 2 - play_button_rect.width / 2
+    play_button_rect.top = screen_height / 2 - play_button_rect.height / 2
+
+    quit_button = buttons_font.render("QUIT", 1, colors.RED)
+    quit_button_rect = quit_button.get_rect()
+    quit_button_rect.left = screen_width / 2 - quit_button_rect.width / 2
+    quit_button_rect.top = screen_height / 2 + quit_button_rect.height / 2 + 100
+
+    def menu_button(button, button_rect, button_text, mouse_pos, action):
+        if button_rect.collidepoint(mouse_pos):
+            if pygame.mouse.get_pressed()[0]:
+                action()
+            button = buttons_font.render(button_text, 1, colors.WHITE)
+            screen.blit(button, button_rect)
+        else:
+            button = buttons_font.render(button_text, 1, colors.RED)
+            screen.blit(button, button_rect)
+
+    def close_menu():
+        global menu_run
+        menu_run = False
+
+    def exit_game():
+        pygame.quit()
+        exit()
+
+    while menu_run:
+
+        screen.fill(colors.BLACK)
+
+        mouse_pos = pygame.mouse.get_pos()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                exit()
+
+        screen.blit(game_title, game_title_rect)
+
+        menu_button(play_button, play_button_rect, "PLAY", mouse_pos, close_menu)
+        menu_button(quit_button, quit_button_rect, "QUIT", mouse_pos, exit_game)
+
+        pygame.display.update()
