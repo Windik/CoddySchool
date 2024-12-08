@@ -1,0 +1,52 @@
+import pip
+# pip.main(['install', 'pytelegrambotapi'])
+
+import telebot
+import random
+from telebot import types
+import sqlite3
+
+def db_connect():
+    connection = sqlite3.connect('data.db')
+
+    cursor = connection.cursor()
+
+    # Создаем таблицу Users
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS Users (
+    id INTEGER PRIMARY KEY,
+    username TEXT NOT NULL
+    )
+    ''')
+
+    # Сохраняем изменения и закрываем соединение
+    connection.commit()
+
+    connection.close()
+
+db_connect()
+
+bot = telebot.TeleBot('7408940952:AAHzOEuni4OMwfow0UBsJvHBtDhUZnL4zP4')
+
+@bot.message_handler(commands=['add_player'])
+def add_player_message(message):
+    bot.send_message(message.chat.id, "Введите имя нового участника.")
+    bot.register_next_step_handler(message, add_player)
+
+def add_player(message):
+    # Создаем подключение к базе данных (файл my_database.db будет создан)
+    connection = sqlite3.connect('data.db')
+
+    cursor = connection.cursor()
+
+    cursor.execute('INSERT INTO Users (username) VALUES (?)', (f'{message.text}'))
+
+    connection.close()
+
+@bot.message_handler(commands=['quiz'])
+def quiz_message(message):
+    pass
+
+@bot.message_handler(content_types=['text'])
+def get_text_message(message):
+    pass
