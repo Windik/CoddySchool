@@ -1,0 +1,16 @@
+import vk_api
+import os
+import random
+from vk_api.longpoll import VkLongPoll, VkEventType
+
+current_path = os.path.dirname(os.path.abspath(__file__))
+
+def write_msg(chat_id, message):
+    vk.method(
+        'message.send',
+        {
+            'chat_id': chat_id,
+            'message': message,
+            'random_id': random.randint(0, 2048)
+        }
+    )
