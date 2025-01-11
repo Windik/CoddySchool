@@ -1,0 +1,9 @@
+script.Parent.Touched:Connect(function(hit)
+	if hit and hit.Parent and hit.Parent.Name == "BlackMagic" then
+		script.Parent.CanCollide = false
+		script.Parent.Transparency = 1
+		wait(3)
+		script.Parent.CanCollide = true
+		script.Parent.Transparency = 0
+	end
+end)
