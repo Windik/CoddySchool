@@ -1,0 +1,97 @@
+import pygame as pg
+import socket
+import threading
+
+player_name = str(input('Input Player Name: '))
+
+serversocket = socket.socket(socket.AF_INET, 
+                             socket.SOCK_STREAM)
+serversocket.bind(('192.168.1.134', 8089))
+serversocket.listen(5)
+
+pg.init()
+
+screen_width = 800
+screen_height = 600
+
+screen = pg.display.set_mode((screen_width, 
+                              screen_height))
+
+clock = pg.time.Clock()
+FPS = 60
+
+player_x = screen_width / 2
+player_y = screen_height / 2
+player_speed = 1
+
+
+font_size = 30
+name_font = pg.font.Font(None, font_size)
+player_name_text = name_font.render(player_name, 
+                                    1, 
+                                    (255,255,255))
+
+run = True
+
+data = ""
+
+is_player_connected = False
+
+def server():
+    global data, is_player_connected
+
+    while True:
+        connection, address = serversocket.accept()
+        buf = connection.recv(64)
+        if len(buf) > 0:
+            data = str(buf)
+            if "connected" in data:
+                is_player_connected = True
+                print("Player connected")
+            print(data)
+
+
+lan_thread = threading.Thread(target=server)
+lan_thread.start()
+
+while run:
+
+    screen.fill((0, 0, 0))
+
+    for event in pg.event.get():
+        if event.type == pg.QUIT:
+            run = False
+
+    pg.draw.circle(screen, 
+                   (255,255,255), 
+                   (player_x, player_y), 
+                   30)
+
+    if is_player_connected:
+        pg.draw.circle(screen, 
+                       (255,0,0), 
+                       (400, 300), 
+                       30)
+
+    user_input = pg.key.get_pressed()
+
+    if user_input[pg.K_ESCAPE]:
+        run = False
+    if user_input[pg.K_w]:
+        player_y -= player_speed
+    if user_input[pg.K_s]:
+        player_y += player_speed
+    if user_input[pg.K_a]:
+        player_x -= player_speed
+    if user_input[pg.K_d]:
+        player_x += player_speed
+    
+    screen.blit(player_name_text, 
+                (player_x, player_y - 55))
+
+    clock.tick(FPS)
+    pg.display.update()
+
+
+pg.quit()
+lan_thread.join()
