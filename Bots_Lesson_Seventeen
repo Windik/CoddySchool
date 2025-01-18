@@ -1,0 +1,46 @@
+import random
+import os
+import datetime
+import vk_api
+from vk_api.longpoll import VkLongPoll, VkEventType
+
+current_path = os.path.dirname(os.path.abspath(__file__))
+
+def write_msg(chat_id, message):
+    vk.method(
+        'messages.send', {
+            'chat_id': chat_id,
+            'message': message,
+            'random_id': random.randint(0, 2048)
+        })
+
+# API-ключ созданный ранее
+token = ""
+
+# Авторизуемся как сообщество
+vk = vk_api.VkApi(token=token)
+
+# Работа с сообщениями
+longpoll = VkLongPoll(vk)
+
+# ==================================
+print("Бот запущен")
+# Основной цикл
+for event in longpoll.listen():
+
+    # Если пришло новое сообщение
+    if event.type == VkEventType.MESSAGE_NEW:
+
+        # Если оно имеет метку для меня( то есть бота)
+        if event.to_me:
+
+            # Сообщение от пользователя
+            request = event.text
+
+            # Каменная логика ответа
+            if request == "привет":
+                write_msg(event.chat_id, "Хай")
+            elif request == "пока":
+                write_msg(event.user_id, "Пока((")
+            else:
+                write_msg(event.chat_id, "Не понял вашего сообщения...")
