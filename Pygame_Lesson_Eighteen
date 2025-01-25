@@ -1,0 +1,166 @@
+import pygame as pg
+import socket # Модуль для обмена пакетами по сети
+import threading # Модуль для создания и работы с отдельными потоками
+import colors
+
+# Запрос ввода имени пользователя
+player_name = str(input('Input Player Name: '))
+
+# Запрос ввода адреса локальной сети (LAN)
+lan_address = input('Input server address: ')
+
+# Создание сокета для подключения к серверу
+serversocket = socket.socket(socket.AF_INET, 
+                             socket.SOCK_STREAM)
+
+# Подключение к серверу
+serversocket.bind((lan_address, 8089))
+
+# Принятие подключения
+serversocket.listen(5)
+
+#  Инициализация модуля Pygame
+pg.init()
+
+# Задаем размеры экрана
+screen_width = 800
+screen_height = 600
+
+# Создаем экран и устанавливаем его размеры
+screen = pg.display.set_mode((screen_width, 
+                              screen_height))
+
+# Создаем переменные 
+clock = pg.time.Clock()
+FPS = 60
+
+# Координаты игрока  (в центре экрана)  (в пикселях)  (в соответствии с верхним левым углом экрана)  (в горизонтальной и вертикальной плоскости)  (в диапазоне от 0 до ширины экран
+player_x = screen_width / 2
+player_y = screen_height / 2
+
+# Скорость движения игрока  (в пикселях в секунду)  (в горизонтальной и вертикальной плоскости)  (в диапазоне от 1 до 10)  (в соответствии с скоростью перемещения)  (в горизонтальной и вер
+player_speed = 1
+
+# Задаем размер шрифта
+font_size = 30
+# Создаем шрифт для имен игроков
+name_font = pg.font.Font(None, font_size)
+# Рендерим имя игрока
+player_name_text = name_font.render(player_name, 
+                                    1, 
+                                    (255,255,255))
+
+# Создаем переменную управления циклом
+run = True
+
+# Переменная для хранения полученных по сети данных
+data = ""
+# Переменная для хранения данных подключенных игроков
+players = []
+players_colors = [colors.RED, colors.GREEN, colors.YELLOW, colors.BLUE]
+
+# Переменная для проверки подключения клиента к серверу  (в соответствии с статусом подключения)  (в горизонтальной и вертикальной плоскости)  (в диапазоне от 0 до 1)  (в соответствии с статусом подключения)  (в гор
+is_player_connected = False
+
+class Player:
+
+    def __init__(self, 
+                 name, 
+                 x, 
+                 y, 
+                 speed):
+        self.name = name # Имя игрока
+        self.x = x # Координата х
+        self.y = y # Координата y
+        self.speed = speed # Скорость игрока
+
+    def send_lan_data(self, serversocket):
+        # Создаем переменную, хранящую данные для отправки по сети
+        self.data = f"connected,{self.name},{self.x},{self.y}"
+        # Отправляем данные по сети
+        serversocket.sendall(self.data.encode())
+
+    def draw(self, screen):
+        # Рисуем локально нашего игрока
+        pg.draw.circle(screen, colors.WHITE, (self.x, self.y), 30)
+
+    def control(self):
+        # Получаем входящие данные с клавиатуры
+        self.keys = pg.key.get_pressed()
+        # Перемещаем игрока в зависимости от нажатых клавиш
+        if self.keys[pg.K_w]:
+            self.y -= self.speed
+        if self.keys[pg.K_s]:
+            self.y += self.speed
+        if self.keys[pg.K_a]:
+            self.x -= self.speed
+        if self.keys[pg.K_d]:
+            self.x += self.speed
+
+# Функция формирования сервера
+def server():
+    # Подключаем общедоступные переменные
+    global data, is_player_connected, players
+    # Запускаем цикл прослушивания данные по сети
+    while True:
+        # Создаем переменные, хранящие данные о подключении и адресе
+        connection, address = serversocket.accept()
+        # Создаем переменную, принимающую входящие данные (64 - количество байт)
+        buf = connection.recv(64)
+        # Проверяем получены ли данные
+        if len(buf) > 0:
+            # Сохраняем полученные по сети данные в виде строки
+            data = str(buf)
+            # Current Connected Player - данные текущего подключенного игрока
+            ccp = data.split(",") # ["connected", "player_name", x, y]
+            # TODO дописать серверную часть получения данны
+            if "connected" in ccp:
+                is_player_connected = True
+                print("Player connected")
+            print(data)
+
+# Создаем переменную для запуска сервера в отдельном потоке (thread) 
+lan_thread = threading.Thread(target=server)
+# Запускаем отдельный поток
+lan_thread.start()
+
+my_player = Player(player_name, player_x, player_y, 2)
+
+# Основной игровой цикл
+while run:
+
+    # Заливка фона цветом
+    screen.fill((0, 0, 0))
+
+    # Цикл обработки событий игры
+    for event in pg.event.get():
+        # Если получено события нажатия на крестик
+        if event.type == pg.QUIT:
+            # Завершаем цикл
+            run = False
+
+    # Создаем игрока (локального)
+    my_player.draw(screen)
+    my_player.control()
+    my_player.send_lan_data(serversocket)
+
+    # Если подключился игрок, рисуем еще один круг
+    for player in players:
+        pg.draw.circle(screen,
+                        players_colors[players.index(player)],
+                        (player.x, player.y), 
+                        30)
+        screen.blit(player.name, (player.x, player.y - 55))
+    
+    # Выводим имя игрока над его персонажем
+    screen.blit(player_name_text, 
+                (player_x, player_y - 55))
+
+    # Обновляем экран игры каждые 60 кадров в секунду  (в соответствии с частотой кадров)  (в горизонтальной и вертикальной плоскости)  (в диапазоне от 0 до 1)  (в соответствии с частотой кадров)
+    clock.tick(FPS)
+    pg.display.update()
+
+# Завершение игры
+pg.quit()
+# Подключение отдельного потока к основному
+lan_thread.join()
