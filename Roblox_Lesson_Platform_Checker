@@ -1,0 +1,30 @@
+--Variables--
+local Brick = script.Parent
+--End--
+
+_G.players_on_platform = {}
+
+--Code--
+local function PlayerTouched(Part)
+	--print(Part.Parent.Name)
+	local Parent = Part.Parent
+
+	if _G.players_on_platform[Parent.Name] == nil then
+		_G.players_on_platform[Part.Parent.Name] = 1
+		print(Parent.Name .. " was added to platform")
+		print(_G.players_on_platform)
+	end
+
+end
+
+local function onPlatformStanding(active)
+	if not active then
+		_G.players_on_platform[active.Parent.Name] = nil
+		print("WORK!")
+	end
+end
+
+Brick.Humanoid.PlatformStanding:Connect(onPlatformStanding)
+
+
+Brick.Touched:connect(PlayerTouched)
