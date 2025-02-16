@@ -1,0 +1,139 @@
+import pygame
+import os
+import random
+import socket
+
+# Инициализируем модуль pygame
+pygame.init()
+
+# Устанавливаем размер экрана и название окна
+width, height = 800, 600
+screen = pygame.display.set_mode((width,height))
+
+# Устанавливаем название окна и заголовок
+pygame.display.set_caption("My Lan Game")
+
+# Устанавливаем частоту кадров в секунду
+FPS = 60
+clock = pygame.time.Clock()
+
+# Класс для хранения цветов
+class Color:
+
+    def __init__(self):
+        self.red = [255,0,0]
+        self.green = [0,255,0]
+        self.blue = [0,0,255]
+        self.white = [255,255,255]
+        self.black = [0,0,0]
+
+# Класс для хранения игрока
+class Player:
+
+    # Инициализируем объект класса
+    def __init__(self, x, y, radius, color):
+        self.x = x
+        self.y = y
+        self.radius = radius
+        self.color = color
+
+    # Рисуем круг игрока
+    def draw(self, screen):
+        pygame.draw.circle(screen, self.color, (self.x, self.y), self.radius)
+
+    # Двигаем игрока
+    def move(self, x, y):
+        self.user_input = pygame.key.get_pressed()
+
+        if self.user_input[pygame.K_LEFT]:
+            self.x -= x
+        if self.user_input[pygame.K_RIGHT]:
+            self.x += x
+        if self.user_input[pygame.K_UP]:
+            self.y -= y
+        if self.user_input[pygame.K_DOWN]:
+            self.y += y
+
+# Класс для хранения и работы с кнопками
+class Button:
+
+    # Инициализируем объект класса
+    def __init__(self, x, y, width, height, text, font, idle_color, hover_color):
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+        self.text = text
+        self.idle_color = idle_color
+        self.hover_color = hover_color
+        self.font = font
+        self.hover = False
+        self.button = self.font.render(self.text, 1, self.idle_color)
+        self.rect = self.button.get_rect()
+        self.rect.topleft = (self.x, self.y)
+
+    # Рисуем кнопку
+    def draw(self, screen, mouse):
+        self.is_hover(mouse)
+        if self.hover:
+            self.button = self.font.render(self.text, 1, self.hover_color)
+        else:
+            self.button = self.font.render(self.text, 1, self.idle_color)
+        screen.blit(self.button, (self.x, self.y))
+
+    # Проверяем наведение мыши на кнопку
+    def is_hover(self, mouse):
+        if self.rect.collidepoint(mouse):
+            self.hover = True
+        else:
+            self.hover = False
+
+# Сохраняем путь до папки с проектом в переменную
+game_folder = os.path.dirname(__file__)
+
+# Создаем шрифт для использования в игре
+game_font = pygame.font.Font(None, 32)
+
+
+colors = Color()
+my_player = Player(random.randint(0, width), 
+                   random.randint(0, height), 
+                   random.randint(10, 25),
+                   colors.red)
+menu_run = True
+game_run = True
+
+play_single_button = Button(200, 100, 400, 100, "PLAY SINGLE", game_font, colors.white, colors.red)
+play_multi_button = Button(200, 140, 400, 100, "PLAY LAN", game_font, colors.white, colors.red)
+settings_button = Button(200, 180, 400, 100, "SETTINGS", game_font, colors.white, colors.red)
+quit_button = Button(200, 220, 400, 100, "QUIT", game_font, colors.white, colors.red)
+
+while menu_run:
+
+    screen.fill(colors.black)
+
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()
+
+    play_single_button.draw(screen, pygame.mouse.get_pos())
+    play_multi_button.draw(screen, pygame.mouse.get_pos())
+    settings_button.draw(screen, pygame.mouse.get_pos())
+    quit_button.draw(screen, pygame.mouse.get_pos())
+
+    clock.tick(FPS)
+    pygame.display.update()
+
+while game_run:
+
+    screen.fill(colors.black)
+
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()
+    
+    my_player.move(5,5)
+    my_player.draw(screen)
+
+    clock.tick(FPS)
+    pygame.display.update()
