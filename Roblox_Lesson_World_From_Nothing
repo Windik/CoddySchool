@@ -1,0 +1,89 @@
+function addPart(position, anchored, size, colorName, material, collision)
+-- Добавляем главную платформу в карту
+	local platform = Instance.new("Part", workspace) -- добавляем новую сущность типа Part
+	platform.Position =  position -- положение в мире
+	platform.Anchored = anchored -- Включаем для созданного объекта привязку (anchor)
+	platform.Size = size -- задаем размер парта
+	platform.BrickColor = BrickColor.new(colorName) -- задаем цвет парта
+	platform.Material = material -- Указываем материал парта
+	platform.CanCollide = collision -- Включаем столкновения с объектом
+end
+
+-- Создаем переменную для доступа к хранилищу сервера
+local ServerStorage = game:GetService("ServerStorage")
+-- Создаем переменную для хранения рабочего места сцены
+local Workspace = game:GetService("Workspace")
+
+-- Создаем функцию, чтобы быстро добавлять объекты
+-- из хранилища сервера в одну строку, передав
+-- в скобочках названия объекта и его родителя
+function addFromStorage(objectNameToAdd, objectParent)
+	-- Указываем объект, который будем копировать
+	local object = ServerStorage:FindFirstChild(objectNameToAdd)
+
+	-- Делаем проверку: Если объект существуем, тогда клонируем его
+	if object then
+		local clonedObject = object:Clone()
+		clonedObject.Parent = objectParent
+	-- Иначе выводим сообщение с прещупреждением	
+	else
+		warn("Object not found in ServerStorage")
+	end
+end
+
+-- Создаем пол при помощи функции добавления Парта
+addPart(Vector3.new(0, 0, 0), true, Vector3.new(100, 1, 100), "Burnt Sienna", Enum.Material.WoodPlanks, true)
+
+-- Создаем потолок
+addPart(Vector3.new(0, 100, 0), true, Vector3.new(100, 1, 100), "Burnt Sienna", Enum.Material.WoodPlanks, true)
+
+
+-- Создаем правую стену с окном
+addPart(Vector3.new(50, 50, -30), true, Vector3.new(1, 100, 40), "Burnt Sienna", Enum.Material.WoodPlanks, true)
+addPart(Vector3.new(50, 50, 30), true, Vector3.new(1, 100, 40), "Burnt Sienna", Enum.Material.WoodPlanks, true)
+addPart(Vector3.new(50, 2.5, 0), true, Vector3.new(1, 5, 20), "Burnt Sienna", Enum.Material.WoodPlanks, true)
+addPart(Vector3.new(50, 22.5, 0), true, Vector3.new(1, 5, 20), "Burnt Sienna", Enum.Material.WoodPlanks, true)
+addPart(Vector3.new(50, 42.5, 0), true, Vector3.new(1, 5, 20), "Burnt Sienna", Enum.Material.WoodPlanks, true)
+addPart(Vector3.new(50, 62.5, 0), true, Vector3.new(1, 5, 20), "Burnt Sienna", Enum.Material.WoodPlanks, true)
+addPart(Vector3.new(50, 82.5, 0), true, Vector3.new(1, 5, 20), "Burnt Sienna", Enum.Material.WoodPlanks, true)
+addPart(Vector3.new(50, 97.5, 0), true, Vector3.new(1, 5, 20), "Burnt Sienna", Enum.Material.WoodPlanks, true)
+-- Стекло в боковой стене
+addPart(Vector3.new(50, 12.5, 0), true, Vector3.new(1, 15, 20), "White", Enum.Material.ForceField, true)
+addPart(Vector3.new(50, 32.5, 0), true, Vector3.new(1, 15, 20), "White", Enum.Material.ForceField, true)
+addPart(Vector3.new(50, 52.5, 0), true, Vector3.new(1, 15, 20), "White", Enum.Material.ForceField, true)
+addPart(Vector3.new(50, 72.5, 0), true, Vector3.new(1, 15, 20), "White", Enum.Material.ForceField, true)
+addPart(Vector3.new(50, 88.5, 0), true, Vector3.new(1, 10, 20), "White", Enum.Material.ForceField, true)
+
+
+-- Создаем левую стену
+addPart(Vector3.new(-50, 50, -30), true, Vector3.new(1, 100, 40), "Burnt Sienna", Enum.Material.WoodPlanks, true)
+addPart(Vector3.new(-50, 50, 30), true, Vector3.new(1, 100, 40), "Burnt Sienna", Enum.Material.WoodPlanks, true)
+addPart(Vector3.new(-50, 2.5, 0), true, Vector3.new(1, 5, 20), "Burnt Sienna", Enum.Material.WoodPlanks, true)
+addPart(Vector3.new(-50, 22.5, 0), true, Vector3.new(1, 5, 20), "Burnt Sienna", Enum.Material.WoodPlanks, true)
+addPart(Vector3.new(-50, 42.5, 0), true, Vector3.new(1, 5, 20), "Burnt Sienna", Enum.Material.WoodPlanks, true)
+addPart(Vector3.new(-50, 62.5, 0), true, Vector3.new(1, 5, 20), "Burnt Sienna", Enum.Material.WoodPlanks, true)
+addPart(Vector3.new(-50, 82.5, 0), true, Vector3.new(1, 5, 20), "Burnt Sienna", Enum.Material.WoodPlanks, true)
+addPart(Vector3.new(-50, 97.5, 0), true, Vector3.new(1, 5, 20), "Burnt Sienna", Enum.Material.WoodPlanks, true)
+-- Стекло в боковой стене
+addPart(Vector3.new(-50, 12.5, 0), true, Vector3.new(1, 15, 20), "White", Enum.Material.ForceField, true)
+addPart(Vector3.new(-50, 32.5, 0), true, Vector3.new(1, 15, 20), "White", Enum.Material.ForceField, true)
+addPart(Vector3.new(-50, 52.5, 0), true, Vector3.new(1, 15, 20), "White", Enum.Material.ForceField, true)
+addPart(Vector3.new(-50, 72.5, 0), true, Vector3.new(1, 15, 20), "White", Enum.Material.ForceField, true)
+addPart(Vector3.new(-50, 88.5, 0), true, Vector3.new(1, 10, 20), "White", Enum.Material.ForceField, true)
+
+
+-- Создаем заднюю стенку
+addPart(Vector3.new(0, 50, 50), true, Vector3.new(100, 100, 1), "Burnt Sienna", Enum.Material.WoodPlanks, true)
+
+-- Создаем стеклянную стенку
+addPart(Vector3.new(0, 50, -50), true, Vector3.new(100, 100, 1), "White", Enum.Material.ForceField, true)
+
+-- Добавляем музыку из хранилища
+addFromStorage("Soothing Waves", Workspace)
+-- Добавляем место спавна игрока из хранилища
+addFromStorage("SpawnLocation", Workspace)
+-- Добавляем диван из хранилища в workspace
+addFromStorage("Sofa", Workspace)
+-- Добавляем красивое небо из хранилища. В отличие
+-- от обычных объектов, небо добавляем в раздел Lighting
+addFromStorage("Sky", game.Lighting)
