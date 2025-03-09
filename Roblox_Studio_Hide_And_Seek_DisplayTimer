@@ -1,0 +1,25 @@
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local TimerUpdateEvent = ReplicatedStorage:WaitForChild("TimerUpdate")
+local SeekerSelectedEvent = ReplicatedStorage:WaitForChild("SeekerSelected")
+
+local playerGui = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+local timerLabel = script.Parent.ScreenGui.Frame.Timer
+timerLabel.Position = UDim2.new(0.5, -100, 0, 10)
+timerLabel.BackgroundTransparency = 0.5
+timerLabel.TextScaled = true
+
+local seeker = script.Parent.ScreenGui.Frame.Seeker
+seeker.Position = UDim2.new(0.5, -100, 0, -50)
+seeker.BackgroundTransparency = 0.5
+seeker.TextScaled = true
+
+TimerUpdateEvent.OnClientEvent:Connect(function(remainingTime)
+    local minutes = math.floor(remainingTime / 60)
+    local seconds = remainingTime % 60
+    timerLabel.Text = string.format("До конца поиска: %02d:%02d", minutes, seconds)
+end)
+
+SeekerSelectedEvent.OnClientEvent:Connect(function(seekerName)
+    seeker.Text = "Водящий: " .. seekerName
+end)
+
