@@ -1,0 +1,40 @@
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local TimerUpdateEvent = ReplicatedStorage:WaitForChild("TimerUpdate")
+
+local timerDuration = 180 -- 3 минуты в секундах
+
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local SeekerSelectedEvent = ReplicatedStorage:WaitForChild("SeekerSelected")
+
+-- Функция выбора водящего из общего списка игроков, которые сейчас в игре
+local function selectSeeker()
+	local allPlayers = Players:GetPlayers()
+	if #allPlayers > 0 then
+		local randomIndex = math.random(1, #allPlayers)
+		local seeker = allPlayers[randomIndex]
+		SeekerSelectedEvent:FireAllClients(seeker.Name)
+	end
+end
+
+-- Основной цикл игры, в котором подсчитываем оставшееся время, выбираем воду и перезагружаем игру, по истечении времени
+while true do
+    for remainingTime = timerDuration, 0, -1 do
+        TimerUpdateEvent:FireAllClients(remainingTime)
+		wait(1)
+  		if remainingTime == 160 then
+  			selectSeeker()
+  		end
+    end
+
+    -- Респавн игроков
+    for _, player in Players:GetPlayers() do
+        if player.Character then
+            player:LoadCharacter()
+        end
+	end
+	
+	timerDuration = 180 -- Сбрасываем значение раунда
+end
+
