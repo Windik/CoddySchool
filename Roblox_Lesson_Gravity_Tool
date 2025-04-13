@@ -1,0 +1,92 @@
+--[[ Инструкции по использованию:
+
+Создайте инструмент (Tool): В Roblox Studio, в Explorer, добавьте Tool в StarterPack. Это позволит игрокам получать инструмент при входе в игру.
+Создайте часть (Part) для инструмента: Внутри Tool создайте Part. Это будет визуальная часть вашего инструмента. Вы можете настроить его форму, размер, текстуру и т. д.
+Разместите скрипт: Добавьте Script в Tool. Вставьте код скрипта, приведенный выше, в этот скрипт.
+Настройте параметры:
+gravityChangeAmount: Определяет, насколько будет изменяться гравитация при каждом нажатии кнопки мыши.
+minGravity: Минимальное значение гравитации, до которого можно уменьшить.
+maxGravity: Максимальное значение гравитации, до которого можно увеличить.
+Протестируйте игру: Запустите игру в Roblox Studio. Когда ваш персонаж возьмет инструмент, щелкните левой кнопкой мыши, чтобы увеличить гравитацию, и правой кнопкой мыши, чтобы уменьшить её. Вы должны увидеть изменения гравитации в действии.
+Объяснение кода:
+
+tool = script.Parent: Получает ссылку на сам инструмент.
+userInputService = game:GetService("UserInputService"): Получает доступ к сервису UserInputService, который позволяет отслеживать ввод пользователя (кнопки мыши, клавиатура и т. д.).
+gravityChangeAmount: Определяет, насколько изменяется гравитация при каждом щелчке.
+minGravity и maxGravity: устанавливают пределы для изменения гравитации.
+onActivated(): Функция, которая вызывается при нажатии левой кнопки мыши. Она увеличивает гравитацию в workspace, но не более maxGravity.
+onDeactivated(): Функция, которая вызывается при нажатии правой кнопки мыши. Она уменьшает гравитацию в workspace, но не ниже minGravity.
+onEquipped(mouse): Функция, которая вызывается, когда инструмент экипирован (взят в руки). Она подключается к событиям Button1Down (левая кнопка мыши) и Button2Down (правая кнопка мыши) мыши.
+onUnequipped(): Функция, которая вызывается, когда инструмент снят. Она отключает события мыши, чтобы они не срабатывали, когда инструмент не экипирован.
+tool.Equipped:Connect(onEquipped): Подключает функцию onEquipped к событию Equipped инструмента.
+tool.Unequipped:Connect(onUnequipped): Подключает функцию onUnequipped к событию Unequipped инструмента. ]]--
+
+                                                                                                                                                     
+                                                                                                                                                     
+local tool = script.Parent
+local userInputService = game:GetService("UserInputService")
+local gravityChangeAmount = 20 -- Настройка: насколько изменяется гравитация за одно нажатие
+local minGravity = 19.62 -- Минимальное значение гравитации
+local maxGravity = 300 -- Максимальное значение гравитации
+
+local function onActivated()
+	-- Левая кнопка мыши (увеличение гравитации)
+	game:GetService("StarterGui"):SetCoreGuiEnabled(Enum.CoreGuiType.TouchControl, false)
+	game:GetService("StarterGui"):SetCoreGuiEnabled(Enum.CoreGuiType.EmotesMenu, false)
+	-- print("Left Mouse Button Clicked - Increase Gravity")
+
+	if workspace.Gravity < maxGravity then
+		workspace.Gravity = workspace.Gravity + gravityChangeAmount
+		print("Gravity increased to: " .. workspace.Gravity)
+	else
+		print("Gravity at maximum!")
+	end
+end
+
+local function onDeactivated()
+	-- Правая кнопка мыши (уменьшение гравитации)
+
+	-- print("Right Mouse Button Clicked - Decrease Gravity")
+	if workspace.Gravity > minGravity then
+		workspace.Gravity = workspace.Gravity - gravityChangeAmount
+		print("Gravity decreased to: " .. workspace.Gravity)
+	else
+		print("Gravity at minimum!")
+	end
+end
+
+-- Функция для отслеживания экипировки и снятия инструмента
+local function onEquipped(mouse)
+	-- Подключаем события к кнопкам мыши
+	mouse.Button1Down:Connect(onActivated)
+	mouse.Button2Down:Connect(onDeactivated)
+end
+
+local function onUnequipped()
+	-- Отключаем события при снятии инструмента
+	--print("Tool Unequipped")
+	if tool.GripRight ~= nil then
+		tool.GripRight:Disconnect()
+	end
+
+	if tool.GripLeft ~= nil then
+		tool.GripLeft:Disconnect()
+	end
+end
+
+-- Подключаем события к инструменту
+tool.Equipped:Connect(onEquipped)
+tool.Unequipped:Connect(onUnequipped)
+
+userInputService.InputBegan:Connect(function(input, gameProcessedEvent)
+ 	if gameProcessedEvent then return end  -- Если игра уже обработала ввод (например, UI), не делаем ничего
+ 	if input.UserInputType == Enum.UserInputType.MouseButton1 and tool.Parent == game.Players.LocalPlayer.Character then
+ 		onActivated()
+ 	end
+end)
+userInputService.InputBegan:Connect(function(input, gameProcessedEvent)
+ 	if gameProcessedEvent then return end  -- Если игра уже обработала ввод (например, UI), не делаем ничего
+ 	if input.UserInputType == Enum.UserInputType.MouseButton2 and tool.Parent == game.Players.LocalPlayer.Character then
+ 		onDeactivated()
+ 	end
+end)
