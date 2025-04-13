@@ -1,0 +1,14 @@
+# Глобальный скрипт, который хранит переменные, используемые во всех сценах проекта
+
+extends Node3D
+
+var bullets = 12
+var clips = 2
+var money = 0
+
+var hp = 100
+
+var missions = {'Menu': 'Complete the game.',
+				'Lvl1': 'Find entrence to the Bunker.',
+				'Lvl2': 'Kill all enemies.',
+				'Lvl_tower': 'Find something usefull\nand go forward.'}
