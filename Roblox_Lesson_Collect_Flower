@@ -1,0 +1,29 @@
+local flower = script.Parent
+local debounce = false -- переменная для предотвращения многократного сбора цветка
+
+-- Настройка параметров
+local pointsToAdd = 1 -- Количество очков, которое дается за сбор цветка
+local respawnTime = 5 -- Время возрождения цветка в секундах
+
+local function onTouched(hit)
+	if debounce then return end -- Если цветок уже собирается, выйти из функции
+
+	local player = game.Players:GetPlayerFromCharacter(hit.Parent)
+	if player then
+		debounce = true
+		-- Вызываем функцию addFlowers из ServerScript
+		_G.addFlowers(player, pointsToAdd)
+
+		-- Отключаем цветок
+		flower.Transparency = 1
+		flower.CanCollide = false
+
+		-- Возрождаем цветок через некоторое время
+		wait(respawnTime)
+		flower.Transparency = 0
+		flower.CanCollide = true
+		debounce = false
+	end
+end
+
+flower.Touched:Connect(onTouched)
