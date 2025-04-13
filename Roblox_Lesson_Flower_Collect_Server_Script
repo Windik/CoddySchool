@@ -1,0 +1,82 @@
+--В Roblox Studio, добавьте Script в ServerScriptService.
+--Переименуйте скрипт в FlowerCollectionScript.
+--Вставьте в скрипт следующий код:
+----------------------------------------------------------
+
+local DataStoreService = game:GetService("DataStoreService")
+local flowerDataStore = DataStoreService:GetDataStore("FlowerData") -- DataStore для сохранения данных игрока
+
+-- Функция для создания или получения Leaderboard
+local function createLeaderboard(player)
+	local leaderstats = Instance.new("Folder")
+	leaderstats.Name = "leaderstats"
+	leaderstats.Parent = player
+
+	local flowersCollected = Instance.new("IntValue")
+	flowersCollected.Name = "Flowers"
+	flowersCollected.Value = 0
+	flowersCollected.Parent = leaderstats
+end
+
+-- Функция для загрузки данных игрока
+local function loadPlayerData(player)
+	local userId = player.UserId
+	local success, playerData = pcall(function()
+		return flowerDataStore:GetAsync(userId)
+	end)
+
+	if success then
+		createLeaderboard(player)
+		if playerData then
+			player.leaderstats.Flowers.Value = playerData
+			print("Loaded flowers for " .. player.Name .. ": " .. playerData)
+		else
+			print("No saved data for " .. player.Name)
+		end
+	else
+		warn("Error loading data for " .. player.Name .. ": " .. playerData)
+	end
+end
+
+-- Функция для сохранения данных игрока
+local function savePlayerData(player)
+	local userId = player.UserId
+	local flowers = player.leaderstats.Flowers.Value
+	local success, errorMessage = pcall(function()
+		flowerDataStore:SetAsync(userId, flowers)
+	end)
+
+	if success then
+		print("Saved flowers for " .. player.Name .. ": " .. flowers)
+	else
+		warn("Error saving data for " .. player.Name .. ": " .. errorMessage)
+	end
+end
+
+-- Функция, когда игрок присоединяется к игре
+game.Players.PlayerAdded:Connect(function(player)
+	loadPlayerData(player)
+end)
+
+-- Функция, когда игрок покидает игру (для сохранения данных)
+game.Players.PlayerRemoving:Connect(function(player)
+	savePlayerData(player)
+end)
+
+-- Функция для добавления очков игроку
+local function addFlowers(player, amount)
+	if player and player.leaderstats and player.leaderstats.Flowers then
+		player.leaderstats.Flowers.Value = player.leaderstats.Flowers.Value + amount
+	end
+end
+
+-- Глобальная функция для добавления очков (чтобы LocalScript мог её вызвать)
+_G.addFlowers = addFlowers
+
+-- Автоматическое сохранение данных каждые 60 секунд
+while true do
+	wait(60)
+	for _, player in pairs(game.Players:GetPlayers()) do
+		savePlayerData(player)
+	end
+end
