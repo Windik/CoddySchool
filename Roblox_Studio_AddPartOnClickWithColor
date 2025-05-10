@@ -1,0 +1,62 @@
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+
+local player = Players.LocalPlayer
+local mouse = player:GetMouse()
+
+local gridSize = 2  -- Define the grid size
+
+
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 and not gameProcessed then
+		local mousePosition = mouse.Hit.Position
+		-- Snap position to grid
+		local gridPosition = Vector3.new(
+			math.floor(mousePosition.X / gridSize + 0.5) * gridSize,
+			math.floor(mousePosition.Y / gridSize + 0.5) * gridSize,
+			math.floor(mousePosition.Z / gridSize + 0.5) * gridSize
+		)
+		local newPart = Instance.new("Part")
+		newPart.Size = Vector3.new(2, 2, 2)
+		newPart.Position = gridPosition + Vector3.new(0, 1, 0)
+		newPart.Anchored = true
+		newPart.Parent = game.Workspace
+		newPart.Name = "generatedPart"
+		newPart.Color = Color3.new(1, 0.666667, 0)
+		newPart:SetAttribute("IsPlayerPlaced", true) -- Mark as player-placed
+	end
+	
+	if input.UserInputType == Enum.UserInputType.MouseButton2 then
+		local targetPart = mouse.Target
+		if targetPart and targetPart:IsA("BasePart") then
+			if targetPart:GetAttribute("IsPlayerPlaced") == true then
+				targetPart.BrickColor = BrickColor.Random()
+				print("Changed color of part:", targetPart.Name)
+			else
+				print("Cannot change color: Part was not placed by the player or is not a PlacedBlock.")
+			end
+		else
+			print("Cannot change color: Mouse not targeting a valid part.")
+		end
+	end
+end)
+
+local UserInputService = game:GetService("UserInputService")
+local Players = game:GetService("Players")
+
+local player = Players.LocalPlayer
+local mouse = player:GetMouse()
+
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+	if input.UserInputType == Enum.UserInputType.MouseButton3 and not gameProcessed then
+		local target = mouse.Target
+		if target then
+			print("Object Name: " .. target.Name)
+			if target.Name == "generatedPart" then
+				target:Remove()
+			end
+		else
+			print("No object under cursor.")
+		end
+	end
+end)
